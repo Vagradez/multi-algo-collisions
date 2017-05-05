@@ -82,6 +82,9 @@ def show(orig_str, collision_str, duration):
 
     print()
     print("%r bytes collision found using %r algorithm in %r seconds" % (HASHCHARS,ALGO,duration))
+    print ("Validate it")
+    print ()
+    print ("echo -n %r | %r | cut -c1-%d  && echo -n %r | %r | cut -c1-%r" %(orig_str,ALGO+"sum",HASHCHARS,collision_str,ALGO+"sum",HASHCHARS))
 
 
 
