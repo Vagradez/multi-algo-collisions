@@ -28,7 +28,7 @@ This is basically in line with the 20 million figure we saw from our test runs.
 ### sha1 collision 
 
 ``` Bash
-$ python3.4 sha.py 10 4
+$ python3.4 colide.py 10 4
 Collision found!
 
 4 bytes collision found using 'sha1' algorithm in 1 seconds
@@ -44,7 +44,7 @@ a (bytes: b'61') hashes to 86f7, but 5Gf (bytes: b'354766') also hashes to 86f7
 ### sha224 collision
 
 ``` Bash
-$ python3.4 sha.py 10 4 sha224
+$ python3.4 colide.py 10 4 sha224
 Collision found!
 
 4 bytes collision found using 'sha224' algorithm in 5 seconds
@@ -60,7 +60,7 @@ a (bytes: b'61') hashes to abd3, but leG (bytes: b'6c6547') also hashes to abd3
 ### sha256 collision
 
 ``` Bash
-$ python3.4 sha.py 10 4 sha256
+$ python3.4 colide.py 10 4 sha256
 Collision found!
 
 4 bytes collision found using 'sha256' algorithm in 2 seconds
@@ -76,7 +76,7 @@ a (bytes: b'61') hashes to ca97, but 8uN (bytes: b'38754e') also hashes to ca97
 ### sha384 collision
 
 ``` Bash
-$ python3.4 sha.py 10 4 sha384
+$ python3.4 colide.py 10 4 sha384
 Collision found!
 
 4 bytes collision found using 'sha384' algorithm in 1 seconds
@@ -92,7 +92,7 @@ a (bytes: b'61') hashes to 54a5, but 3Lt (bytes: b'334c74') also hashes to 54a5
 ### sha512 collision
 
 ``` Bash
-$ python3.4 sha.py 10 4 sha512
+$ python3.4 colide.py 10 4 sha512
 Collision found!
 
 4 bytes collision found using 'sha512' algorithm in 7 seconds
@@ -109,7 +109,7 @@ a (bytes: b'61') hashes to 1f40, but CN0 (bytes: b'434e30') also hashes to 1f40
 ### md5 collision
 
 ``` Bash
-$ python3.4 sha.py 10 4 md5
+$ python3.4 colide.py 10 4 md5
 Collision found!
 
 4 bytes collision found using 'md5' algorithm in 4 seconds
