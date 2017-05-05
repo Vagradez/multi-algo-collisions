@@ -21,123 +21,106 @@ According to Wikipedia^[`https://en.wikipedia.org/wiki/Birthday_attack`] the num
 $$n(0.5,2^{48}) \approx 1.1774 \sqrt{2^{48}} = 19.755 \times 10^6.$$
 This is basically in line with the 20 million figure we saw from our test runs.
 
-### Collision #1
+
+## Algo
+
+
+### sha1 collision 
 
 ``` Bash
-$ time python3.4 sha5.py 10 6
+$ python3.4 sha.py 10 4
 Collision found!
-b'51c6a3aa723a' hashes to 93c78fb33f70, but b'95a1d9e96e42606284'
-also hashes to 93c78fb33f70
-Took 19881348 trials
-python3.4 sha5.py 10 6  93.49s user 45.17s system 100% cpu 2:18.63 total
+
+4 bytes collision found using 'sha1' algorithm in 1 seconds
+
+Validate it
+
+echo -n 'a' | 'sha1sum' | cut -c1-4  && echo -n '5Gf' | 'sha1sum' | cut -c1-4
+
+a (bytes: b'61') hashes to 86f7, but 5Gf (bytes: b'354766') also hashes to 86f7
+
 ```
 
-### Collision #2
-
-Sometimes a collision can be found fairly quickly. This one only took 3.94 seconds, and 1/13 the trials of Collision #1.
+### sha224 collision
 
 ``` Bash
-$ time python3.4 sha5.py 12 6
+$ python3.4 sha.py 10 4 sha224
 Collision found!
-b'ce4912bfe6274259' hashes to 82b06260148a, but b'9863780e679e2b2f895a5c'
-also hashes to 82b06260148a
-Took 1509438 trials
-python3.4 sha5.py 12 6  6.86s user 3.94s system 100% cpu 10.799 total
+
+4 bytes collision found using 'sha224' algorithm in 5 seconds
+
+Validate it
+
+echo -n 'a' | 'sha224sum' | cut -c1-4  && echo -n 'leG' | 'sha224sum' | cut -c1-4
+
+a (bytes: b'61') hashes to abd3, but leG (bytes: b'6c6547') also hashes to abd3
+
 ```
 
-### Collision #3
+### sha256 collision
 
 ``` Bash
-$ time python3.4 sha5.py 8 6
+$ python3.4 sha.py 10 4 sha256
 Collision found!
-b'957d7a9c41bd85' hashes to e1acf78f4680, but b'f6cccc834bcb5933'
-also hashes to e1acf78f4680
-Took 15658783 trials
-python3.4 sha5.py 8 6  76.45s user 35.57s system 100% cpu 1:52.00 total
-```
 
-## Code
+4 bytes collision found using 'sha256' algorithm in 2 seconds
 
-``` Python
-#!/usr/bin/env python3
+Validate it
 
-from hashlib import sha1
-from binascii import hexlify
-from itertools import product
-from sys import argv
-from random import getrandbits, randint
-from os import urandom
-```
+echo -n 'a' | 'sha256sum' | cut -c1-4  && echo -n '8uN' | 'sha256sum' | cut -c1-4
 
-`hashmap` stores our hash dictionary, from SHA1 outputs to SHA1 inputs.
-
-``` Python
-hashmap = {}
-```
-
-`HASHCHARS` represents the number of characters to consider in the hash function, starting at the beginning. For example, 6 means we use the first 6 bytes of sha1. This is overwritten if a second command-line argument is given; we are asked to look for 6 bytes, so we replace this with 6 when we run it.
-
-``` Python
-HASHCHARS = 8
-```
-
-`sha1_hash()` returns the shortened SHA1 hash of `s`. If the input is bytes, they will be hashed directly; otherwise they will be encoded to ascii before being hashed.
-
-``` Python
-def sha1_hash(s):
-    return sha1(s).hexdigest()[:HASHCHARS * 2]
+a (bytes: b'61') hashes to ca97, but 8uN (bytes: b'38754e') also hashes to ca97
 
 ```
 
-`show()` prints the original string and the collision string. It then recompute the hashes of each of them and print those, to prove that we found a collision.
+### sha384 collision
 
-``` Python
-def show(right, left):
-    # Print stuff.
-    print('Collision found!')
-    print(str(hexlify(left))
-            + ' hashes to ' + str(sha1_hash(left))
-            + ', but ' + str(hexlify(right))
-            + ' also hashes to ' + str(sha1_hash(right)))
+``` Bash
+$ python3.4 sha.py 10 4 sha384
+Collision found!
+
+4 bytes collision found using 'sha384' algorithm in 1 seconds
+
+Validate it
+
+echo -n 'a' | 'sha384sum' | cut -c1-4  && echo -n '3Lt' | 'sha384sum' | cut -c1-4
+
+a (bytes: b'61') hashes to 54a5, but 3Lt (bytes: b'334c74') also hashes to 54a5
+
 ```
 
-`is_collision()` returns true if its input is already in our hashmap. If this succeeds, then we call `show()` on the two collision inputs.
+### sha512 collision
 
-``` Python
-def is_collision(bits):
-    hash = sha1_hash(bits)
-    if hash not in hashmap:
-        hashmap[hash] = bits
-        return None
-    elif not (hashmap[hash] == bits):
-        collision = hashmap[hash]
-        show(bits, collision)
-        return collision
-    return None
+``` Bash
+$ python3.4 sha.py 10 4 sha512
+Collision found!
+
+4 bytes collision found using 'sha512' algorithm in 7 seconds
+
+Validate it
+
+echo -n 'a' | 'sha512sum' | cut -c1-4  && echo -n 'CN0' | 'sha512sum' | cut -c1-4
+
+a (bytes: b'61') hashes to 1f40, but CN0 (bytes: b'434e30') also hashes to 1f40
+
+
 ```
 
-`collide()` runs everything, and calls `show()` if we found a collision. It uses `urandom()` and thus does not get the best possible entropy kernel can offer. This is OK because we are not trying to generate secret keys: we just need numbers that are different to implement the attack. If we generated random numbers from `/dev/random` instead of `/dev/urandom`, we would be limited by the kernel's entropy pool, and the code would take much longer to run.
+### md5 collision
 
-``` Python
-def collide(maxinput=64):
-    x = 0
-    trial = urandom(randint(1, maxinput))
-    while not is_collision(trial):
-        # Strip the leading zeros (who cares about zeros!)
-        trial = urandom(randint(1, maxinput))
-        x += 1
-    print('Took ' + str(x) + ' trials')
+``` Bash
+$ python3.4 sha.py 10 4 md5
+Collision found!
+
+4 bytes collision found using 'md5' algorithm in 4 seconds
+
+Validate it
+
+echo -n 'a' | 'md5sum' | cut -c1-4  && echo -n 'qZ7' | 'md5sum' | cut -c1-4
+
+a (bytes: b'61') hashes to 0cc1, but qZ7 (bytes: b'715a37') also hashes to 0cc1
+
+
+
 ```
 
-This bit just runs the program. It handles command-line inputs and all that.
-
-``` Python
-if __name__ == '__main__':
-    if len(argv) > 1:
-        n = int(argv[1])
-        if len(argv) > 2:
-            HASHCHARS=int(argv[2])
-        collide(n)
-    else:
-        collide()
-```
